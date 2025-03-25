@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Editor Pro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #2c3e50;
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--card-background);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .editor-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-upload-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .image-upload-btn input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        #imagePreview img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .edit-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .edit-controls input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .edit-controls input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .edit-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 12px 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #outputContainer {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f1f8ff;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            .edit-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="editor-header">
+            <h2>AI Image Editor Pro</h2>
+        </div>
+
+        <div class="image-upload-container">
+            <label class="custom-file-upload">
+                <i class="fas fa-cloud-upload-alt"></i> Upload Image
+                <input type="file" id="imageInput" accept="image/*">
+            </label>
+        </div>
+
+        <div id="imagePreview"></div>
+
+        <div class="edit-controls">
+            <input type="text" id="query"
+                placeholder="Describe the edit you want (e.g., add sunset, remove background)">
+            <button class="edit-btn" onclick="editImage()">
+                <i class="fas fa-magic"></i> Edit Image
+            </button>
+        </div>
+
+        <div class="spinner" id="loadingSpinner"></div>
+        <div id="outputContainer"></div>
+    </div>
+
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const imagePreview = document.getElementById('imagePreview');
+                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image">`;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function editImage() {
+            const query = document.getElementById('query').value;
+            const imagePreview = document.getElementById('imagePreview').querySelector('img');
+            const outputContainer = document.getElementById('outputContainer');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            if (!query) {
+                alert('Please enter an edit description.');
+                return;
+            }
+
+            if (!imagePreview) {
+                alert('Please upload an image first.');
+                return;
+            }
+
+            // Simulate loading
+            loadingSpinner.style.display = 'block';
+            outputContainer.innerHTML = '';
+
+            // Simulated async image processing
+            setTimeout(() => {
+                loadingSpinner.style.display = 'none';
+                outputContainer.innerHTML = `
+                    <div style="background-color: #e6f3ff; padding: 1rem; border-radius: 8px;">
+                        <h3>Edit Processing</h3>
+                        <p>Processing edit: "${query}"</p>
+                        <p>⏳ Simulated AI processing...</p>
+                    </div>
+                `;
+            }, 2000);
+        }
+    </script>
+</body>
+
+</html>
